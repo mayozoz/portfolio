@@ -105,21 +105,23 @@ export default function PersonalRPGPortfolio({ resumeUrl = DEFAULT_RESUME_URL })
   // Initialize canvas
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const wrapper = wrapRef.current;
+    if (!canvas || !wrapper) return;
     
     const ctx = canvas.getContext("2d");
     const ratio = getDeviceRatio(ctx);
 
     function resizeCanvas() {
-      const container = wrapRef.current;
-      if (!container) return;
-      
-      const w = Math.max(640, container.clientWidth - 32);
-      const h = Math.max(400, Math.round(w * 9 / 16));
+      // Get the actual wrapper dimensions
+      const rect = wrapper.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
       
       setSize({ w, h });
       canvas.width = w * ratio;
       canvas.height = h * ratio;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       ctx.imageSmoothingEnabled = false;
     }
@@ -127,7 +129,7 @@ export default function PersonalRPGPortfolio({ resumeUrl = DEFAULT_RESUME_URL })
     resizeCanvas();
     
     const resizeObserver = new ResizeObserver(resizeCanvas);
-    resizeObserver.observe(document.body);
+    resizeObserver.observe(wrapper);
     
     setTimeout(() => setLoaded(true), 100);
 
@@ -283,15 +285,15 @@ export default function PersonalRPGPortfolio({ resumeUrl = DEFAULT_RESUME_URL })
   const allFound = ITEMS.every(item => inventory[item.id]);
 
   return (
-    <div ref={wrapRef} className="w-full h-full min-h-screen flex flex-col items-center bg-black text-white">
+    <div ref={wrapRef} className="w-full h-screen flex flex-col bg-black text-white">
       <Header zone={zone} musicOn={musicOn} setMusicOn={setMusicOn} />
       
-      <div 
-        className="relative select-none"
-        style={{ width: size.w, height: size.h, cursor }}
-        onClick={handleClick}
-      >
-        <canvas ref={canvasRef} className="rounded-2xl shadow-xl border border-white/10" />
+      <div className="flex-1 relative overflow-hidden">
+        <canvas 
+          ref={canvasRef} 
+          className="absolute inset-0 w-full h-full"
+          onClick={handleClick}
+        />
         
         <ZoneBanner zone={zone} />
         <InventoryBar items={ITEMS} inventory={inventory} />
@@ -355,13 +357,8 @@ function render(ctx, size, player, zone, inventory, itemSpawns, gates, particles
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
   
-  // Draw hub
+  // Draw hub (just the ring, no gates)
   drawHub(ctx, center);
-  
-  // Draw gates
-  gates.forEach(gate => {
-    drawGate(ctx, gate);
-  });
   
   // Draw items
   ITEMS.forEach(item => {
@@ -371,10 +368,10 @@ function render(ctx, size, player, zone, inventory, itemSpawns, gates, particles
     }
   });
   
-  // Draw player
-  drawPlayer(ctx, player.x, player.y, player.dir, konami);
-  
   ctx.restore();
+  
+  // Draw player at fixed center position
+  drawPlayer(ctx, size.w / 2, size.h / 2, player.dir, konami);
   
   // Draw particles (in screen space)
   particles.forEach(particle => {
