@@ -227,7 +227,7 @@ export default function PersonalRPGPortfolio({ resumeUrl = DEFAULT_RESUME_URL })
       // 2) animation state (use the *latest* player from the ref)
       const p = playerRef.current;
       if (spriteReady && spriteRef.current) {
-        spriteRef.current.setAnim(p.isMoving ? "walk" : "idle");
+        spriteRef.current.setAnim(p.isMoving ? "walk" : "blink");
         spriteRef.current.update(dt);
       }
 
@@ -637,25 +637,25 @@ function loadAsepriteSprite(pngUrl, jsonUrl) {
             };
           }
         } else {
-          // Fallback: infer from frame names (e.g., "...idle 0.aseprite", "...walking 3.aseprite")
+          // Fallback: infer from frame names (e.g., "...blink 0.aseprite", "...walking 3.aseprite")
           const groups = {};
           entries.forEach(([name], idx) => {
             const n = name.toLowerCase();
-            let key = "idle";
+            let key = "blink";
             if (n.includes("walk")) key = "walk";
             else if (n.includes("run")) key = "walk";
-            else if (n.includes("idle")) key = "idle";
+            else if (n.includes("blink")) key = "blink";
             if (!groups[key]) groups[key] = { from: idx, to: idx };
             groups[key].to = idx;
           });
           animations = groups;
-          // Ensure we have at least an idle frame
-          if (!animations.idle) animations.idle = { from: 0, to: 0, direction: "forward" };
+          // Ensure we have at least an blink frame
+          if (!animations.blink) animations.blink = { from: 0, to: 0, direction: "forward" };
         }
       } else {
         // Single-frame fallback
         frames = [{ x: 0, y: 0, w: img.width, h: img.height, duration: 1000 }];
-        animations = { idle: { from: 0, to: 0, direction: "forward" } };
+        animations = { blink: { from: 0, to: 0, direction: "forward" } };
       }
 
       resolve({ img, frames, animations });
@@ -668,7 +668,7 @@ function loadAsepriteSprite(pngUrl, jsonUrl) {
 // ===== Animator
 function makeAnimator(sprite) {
   const { frames, animations } = sprite;
-  let current = animations.idle ? "idle" : Object.keys(animations)[0] || "idle";
+  let current = animations.blink ? "blink" : Object.keys(animations)[0] || "blink";
   let frameIndex = animations[current]?.from ?? 0;
   let timer = 0;
 
