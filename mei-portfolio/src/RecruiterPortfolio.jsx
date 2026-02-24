@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-const DEFAULT_RESUME_URL =
-  "https://raw.githubusercontent.com/mayozoz/mayozoz.github.io/main/mei-yi-yang_resume.pdf";
+const DEFAULT_RESUME_URL = `${import.meta.env.BASE_URL || "/"}resume.pdf`;
 
 const cx = (...xs) => xs.filter(Boolean).join(" ");
 
@@ -120,16 +119,16 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
   const profile = useMemo(
     () => ({
       name: "Mei Yi Yang",
-      headline: "AI/ML + Full‑Stack Engineer with a creative edge",
+      headline: "Software Engineer • Game Engine / Gameplay • UI polish",
       blurb:
-        "I build products that are fast, human-friendly, and measurable — from ML evaluation pipelines to polished React UIs. Recruiter-friendly version below; my RPG portfolio is one click away.",
+        "I build interactive, shippable experiences—recently a 3D mini‑adventure game and a growing 3D modeling gallery—alongside product‑grade web and tooling work. I care about feel (controls/UX), performance, and clear, maintainable systems.",
       links: {
         resume: resumeUrl,
         linkedin: "https://www.linkedin.com/in/meiyy",
         github: "https://github.com/mayozoz",
         email: "mailto:mei.yang0508@gmail.com",
-        games: null, // set to your itch.io / Steam / games page
-        art3d: null, // set to your ArtStation / Sketchfab / 3D reel
+        games: "https://runnyeggpie.itch.io/the-boot",
+        art3d: "https://eecs298.com/galleries/students/meiyy/gallery.html",
       },
     }),
     [resumeUrl],
@@ -140,6 +139,16 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
       {
         group: "Languages",
         items: ["Python", "C++", "JavaScript", "Java", "SQL"],
+      },
+      {
+        group: "Game / Engine",
+        items: [
+          "Unity (C#)",
+          "Gameplay systems",
+          "Tools / editor workflows",
+          "Debugging & iteration",
+          "3D fundamentals (transforms, cameras, collisions)",
+        ],
       },
       {
         group: "AI / ML",
@@ -199,22 +208,22 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
         cta: "Open resume",
       },
       {
-        title: "Games",
-        desc: "Playable builds + concise writeups. (Set your games link.)",
+        title: "3D mini-adventure game",
+        desc: "Playable build on itch.io. Short, focused, and interactive.",
         href: profile.links.games,
         icon: "link",
-        cta: "Open games",
+        cta: "Play on itch.io",
       },
       {
-        title: "3D Art",
-        desc: "Reel, renders, and process. (Set your 3D link.)",
+        title: "3D models gallery",
+        desc: "A growing set of 3D studies and environment models.",
         href: profile.links.art3d,
         icon: "link",
-        cta: "Open 3D portfolio",
+        cta: "Open gallery",
       },
     ];
 
-    return cards.map((c) => ({ ...c, href: c.href || "#set-your-link" }));
+    return cards;
   }, [profile.links.art3d, profile.links.games, profile.links.resume]);
 
   return (
@@ -263,7 +272,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                   Resume
                 </ButtonLink>
                 <ButtonLink href={rpgHref} variant="soft">
-                  Play RPG version
+                  View archived interactive portfolio
                 </ButtonLink>
               </div>
 
@@ -302,7 +311,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                   Resume
                 </ButtonLink>
                 <ButtonLink href={rpgHref} variant="soft" className="w-full">
-                  Play RPG version
+                  View archived interactive portfolio
                 </ButtonLink>
               </div>
             </div>
@@ -336,7 +345,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                     GitHub
                   </ButtonLink>
                   <ButtonLink href="#portfolios" variant="ghost">
-                    Games + 3D Art links
+                    Game + 3D links
                   </ButtonLink>
                 </div>
 
@@ -359,11 +368,11 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                     <ButtonLink href={profile.links.resume} variant="primary" icon="download" className="w-full">
                       Open resume
                     </ButtonLink>
-                    <ButtonLink href={profile.links.games || "#set-your-link"} variant="soft" icon="link" className="w-full">
-                      Games portfolio
+                    <ButtonLink href={profile.links.games} variant="soft" icon="link" className="w-full">
+                      Play my 3D game
                     </ButtonLink>
-                    <ButtonLink href={profile.links.art3d || "#set-your-link"} variant="soft" icon="link" className="w-full">
-                      3D art portfolio
+                    <ButtonLink href={profile.links.art3d} variant="soft" icon="link" className="w-full">
+                      View 3D models
                     </ButtonLink>
                     <ButtonLink href={profile.links.email} variant="ghost" className="w-full">
                       Email
@@ -373,7 +382,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                   <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4 text-xs text-zinc-300">
                     Want something fun?{" "}
                     <a className="underline underline-offset-4 hover:text-white" href={rpgHref}>
-                      Play the RPG version
+                      View the archived interactive version
                     </a>{" "}
                     of my portfolio.
                   </div>
@@ -388,14 +397,15 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
             <div className="md:col-span-7">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6 leading-relaxed text-zinc-200">
                 <p>
-                  I’m a builder who likes crisp problem statements, fast iterations, and clean
-                  delivery. I’m comfortable going deep on ML evaluation and also zooming out to
-                  ship user-facing product experiences.
+                  I’m a software engineer who enjoys building interactive systems end-to-end: from
+                  core mechanics and tools to UI, iteration loops, and performance. I’m happiest
+                  when I can prototype quickly, then tighten things into something shippable and
+                  readable.
                 </p>
                 <p className="mt-3">
-                  If you’re hiring for roles that value both{" "}
-                  <span className="text-white font-medium">technical depth</span> and{" "}
-                  <span className="text-white font-medium">product taste</span>, I’ll be a great fit.
+                  I’m currently focusing more on{" "}
+                  <span className="text-white font-medium">game engine / gameplay development</span>{" "}
+                  while bringing along strong web + tooling instincts.
                 </p>
               </div>
             </div>
@@ -452,7 +462,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
           </div>
         </Section>
 
-        <Section id="portfolios" eyebrow="Easy access" title="Resume, games, and 3D art">
+        <Section id="portfolios" eyebrow="Easy access" title="Resume, game, and 3D models">
           <div className="grid gap-4 md:grid-cols-3">
             {portfolios.map((c) => (
               <div
@@ -466,12 +476,6 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                     {c.cta}
                   </ButtonLink>
                 </div>
-                {c.href === "#set-your-link" ? (
-                  <div className="mt-3 text-xs text-zinc-400">
-                    Set your link in{" "}
-                    <code className="text-zinc-200">profile.links</code>.
-                  </div>
-                ) : null}
               </div>
             ))}
           </div>
@@ -517,7 +521,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
               GitHub
             </a>
             <a className="hover:text-zinc-200" href={rpgHref}>
-              RPG mode
+              Archived interactive version
             </a>
           </div>
         </div>

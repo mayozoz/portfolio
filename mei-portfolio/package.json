@@ -4,8 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/copy-resume.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/copy-resume.mjs",
     "build": "vite build",
+    "predeploy": "npm run build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
   },
