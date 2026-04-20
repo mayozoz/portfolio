@@ -4,6 +4,69 @@ const DEFAULT_RESUME_URL = `${import.meta.env.BASE_URL || "/"}resume.pdf`;
 
 const cx = (...xs) => xs.filter(Boolean).join(" ");
 
+function Background({ parallax }) {
+  const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+  const bg1 = `${base}/sprites/background1.jpg`;
+  const bg2 = `${base}/sprites/background2.jpg`;
+
+  const strength = 40;
+  const tx = -(parallax.x * strength);
+  const ty = -(parallax.y * strength);
+
+  const sharedLayer = {
+    transform: `translate3d(${tx}px, ${ty}px, 0)`,
+    transition: "transform 120ms ease-out",
+    willChange: "transform",
+    backgroundSize: "100% auto",
+    backgroundRepeat: "no-repeat",
+  };
+
+  return (
+    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-[-10%]">
+        {/* Top image */}
+        <div
+          className="absolute top-[-15%] left-0 right-0 h-[60%]"
+          style={{
+            ...sharedLayer,
+            backgroundImage: `url(${bg1})`,
+            backgroundPosition: "top center",
+            filter: "brightness(0.35)",
+          }}
+        />
+        {/* Bottom image */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[35%]"
+          style={{
+            ...sharedLayer,
+            backgroundImage: `url(${bg2})`,
+            backgroundPosition: "bottom center",
+            filter: "brightness(0.8)",
+          }}
+        />
+      </div>
+
+      {/* Fade bottom of image 1 into dark */}
+      <div
+        className="absolute top-[25%] left-0 right-0 h-[30%]"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(2,6,23, 0), rgb(2,6,23,1))",
+        }}
+      />
+
+      {/* Fade dark into top of image 2 */}
+      <div
+        className="absolute bottom-[10%] left-0 right-0 h-[20%]"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(2,6,23, 0), rgb(2,6,23,1))",
+        }}
+      />
+    </div>
+  );
+}
+
 function Icon({ name, className }) {
   const common = "w-5 h-5";
   switch (name) {
@@ -85,10 +148,10 @@ function ButtonLink({ href, children, variant = "primary", icon, className }) {
     "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
   const styles =
     variant === "primary"
-      ? "bg-zinc-50 text-zinc-950 hover:bg-white focus-visible:ring-white"
+      ? "bg-sky-300 text-slate-950 hover:bg-sky-200 focus-visible:ring-sky-200"
       : variant === "soft"
-        ? "bg-white/10 text-zinc-50 hover:bg-white/15 border border-white/10 focus-visible:ring-white/60"
-        : "bg-transparent text-zinc-50 hover:bg-white/10 border border-white/15 focus-visible:ring-white/60";
+        ? "bg-slate-900/70 text-zinc-50 hover:bg-slate-900/90 border border-sky-300/30 focus-visible:ring-sky-300/60"
+        : "bg-transparent text-zinc-50 hover:bg-slate-900/70 border border-sky-300/40 focus-visible:ring-sky-300/60";
 
   return (
     <a
@@ -105,7 +168,7 @@ function ButtonLink({ href, children, variant = "primary", icon, className }) {
 
 function Tag({ children }) {
   return (
-    <span className="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-zinc-200">
+    <span className="inline-flex items-center rounded-lg border border-sky-300/25 bg-slate-900/80 px-2 py-1 text-xs text-zinc-200">
       {children}
     </span>
   );
@@ -115,13 +178,22 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const baseUrl = import.meta.env.BASE_URL || "/";
   const rpgHref = `${baseUrl}?mode=rpg`;
+  const faceSrc = `${baseUrl.replace(/\/$/, "")}/sprites/face.jpg`;
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    setParallax({ x, y });
+  };
 
   const profile = useMemo(
     () => ({
       name: "Mei Yi Yang",
       headline: "Software Engineer • Game Engine / Gameplay • UI polish",
       blurb:
-        "I build interactive, shippable experiences—recently a 3D mini‑adventure game and a growing 3D modeling gallery—alongside product‑grade web and tooling work. I care about feel (controls/UX), performance, and clear, maintainable systems.",
+        "Hi! My name is Mei. Welcome to my portfolio! I'm a computer science student at the University of Michigan who believes the best things in life come from a little experimentation and chaos — whether that's making bagels at 3am or filming myself to get an animation just right.",
       links: {
         resume: resumeUrl,
         linkedin: "https://www.linkedin.com/in/meiyy",
@@ -138,12 +210,14 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
     () => [
       {
         group: "Languages",
-        items: ["Python", "C++", "JavaScript", "Java", "SQL"],
+        items: ["Python", "C++", "C#", "HTML", "CSS", "JavaScript", "Java", "SQL"],
       },
       {
         group: "Game / Engine",
         items: [
           "Unity (C#)",
+          "Godot (GDScript)",
+          
           "Gameplay systems",
           "Tools / editor workflows",
           "Debugging & iteration",
@@ -165,7 +239,11 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
       },
       {
         group: "Systems",
-        items: ["Linux", "Distributed concepts", "Debugging (GDB)", "Databases"],
+        items: ["Linux", "OSX", "Windows", "Distributed concepts", "Debugging (GDB)", "Databases"],
+      },
+      {
+        group: "Art",
+        items: ["Blender", "Procreate", "Aseprite", "Adobe Photoshop", "Adobe Illustrator", "Adobe Animate"],
       },
     ],
     [],
@@ -227,7 +305,13 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
   }, [profile.links.art3d, profile.links.games, profile.links.resume]);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 selection:bg-white selection:text-zinc-950">
+    <div
+      className="relative min-h-screen text-zinc-50 selection:bg-white selection:text-zinc-950"
+      onMouseMove={handleMouseMove}
+    >
+      <Background parallax={parallax} />
+
+      <div className="relative z-10">
       <a
         id="top"
         href="#top"
@@ -236,11 +320,11 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
         Skip to top
       </a>
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-zinc-950/75 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-sky-300/20 bg-slate-950/75 backdrop-blur">
         <div className="mx-auto w-full max-w-6xl px-4">
           <div className="flex h-16 items-center justify-between">
             <a href="#top" className="flex items-center gap-2">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 border border-white/10">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900/80 border border-sky-300/30">
                 <Icon name="sparkles" className="w-4 h-4" />
               </span>
               <span className="text-sm font-semibold tracking-tight">
@@ -257,6 +341,9 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
               </a>
               <a href="#work" className="hover:text-white">
                 Work
+              </a>
+              <a href="#demo" className="hover:text-white">
+                Demo
               </a>
               <a href="#portfolios" className="hover:text-white">
                 Links
@@ -278,7 +365,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
 
               <button
                 type="button"
-                className="md:hidden inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                className="md:hidden inline-flex items-center justify-center rounded-xl border border-sky-300/30 bg-slate-900/80 px-3 py-2 text-sm hover:bg-slate-900/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
                 aria-label="Open menu"
                 aria-expanded={menuOpen ? "true" : "false"}
                 onClick={() => setMenuOpen((v) => !v)}
@@ -290,23 +377,26 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
 
           {menuOpen ? (
             <div className="md:hidden pb-4">
-              <div className="grid gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm">
-                <a href="#about" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">
+              <div className="grid gap-2 rounded-2xl border border-sky-300/30 bg-slate-950/90 p-3 text-sm">
+                <a href="#about" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-900/80">
                   About
                 </a>
-                <a href="#skills" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">
+                <a href="#skills" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-900/80">
                   Skills
                 </a>
-                <a href="#work" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">
+                <a href="#work" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-900/80">
                   Work
                 </a>
-                <a href="#portfolios" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">
+                <a href="#demo" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-900/80">
+                  Demo
+                </a>
+                <a href="#portfolios" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-900/80">
                   Links
                 </a>
-                <a href="#contact" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">
+                <a href="#contact" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-900/80">
                   Contact
                 </a>
-                <div className="h-px bg-white/10 my-1" />
+                <div className="h-px bg-sky-300/25 my-1" />
                 <ButtonLink href={profile.links.resume} variant="primary" icon="download" className="w-full">
                   Resume
                 </ButtonLink>
@@ -350,19 +440,31 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                 </div>
 
                 <div className="mt-6 grid gap-2 text-sm text-zinc-200">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-2xl border border-sky-300/25 bg-slate-950/90 p-4">
                     <div className="font-medium text-zinc-50">What you get</div>
                     <ul className="mt-2 grid gap-1.5 list-disc pl-5">
                       <li>Impact-first communication: metrics, trade-offs, outcomes.</li>
-                      <li>Engineering range: ML evaluation + product-grade UI.</li>
-                      <li>Creative instincts: design taste, storytelling, polish.</li>
+                      <li>Full-stack range: frontend to ML pipelines, React to PyTorch.</li>
+                      <li>creative problem-solving: thinking in systems, interactions, and user experience.</li>
+                      <li>Self-directed learning: picks up new tools fast — from CUDA to Unity to Blender.</li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              <div className="md:col-span-5">
-                <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 p-5">
+              <div className="md:col-span-5 flex flex-col gap-4 md:items-end">
+                <div className="w-full max-w-xs md:max-w-sm">
+                  <div className="overflow-hidden rounded-3xl border border-sky-300/35 bg-slate-950/90 shadow-[0_18px_45px_rgba(0,0,0,0.65)]">
+                    <img
+                      src={faceSrc}
+                      alt="Portrait of Mei Yi Yang"
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+
+                <div className="w-full rounded-3xl border border-sky-300/30 bg-gradient-to-b from-slate-950/80 to-slate-900/80 p-5">
                   <div className="text-sm font-semibold">Fast links</div>
                   <div className="mt-3 grid gap-2">
                     <ButtonLink href={profile.links.resume} variant="primary" icon="download" className="w-full">
@@ -379,7 +481,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
                     </ButtonLink>
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4 text-xs text-zinc-300">
+                  <div className="mt-4 rounded-2xl border border-sky-300/25 bg-slate-950/90 p-4 text-xs text-zinc-300">
                     Want something fun?{" "}
                     <a className="underline underline-offset-4 hover:text-white" href={rpgHref}>
                       View the archived interactive version
@@ -395,23 +497,36 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
         <Section id="about" eyebrow="Intro" title="About me">
           <div className="grid gap-6 md:grid-cols-12">
             <div className="md:col-span-7">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 leading-relaxed text-zinc-200">
-                <p>
-                  I’m a software engineer who enjoys building interactive systems end-to-end: from
-                  core mechanics and tools to UI, iteration loops, and performance. I’m happiest
-                  when I can prototype quickly, then tighten things into something shippable and
-                  readable.
+              <div className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6 leading-relaxed text-zinc-200">
+                {/* <p>
+                  I'm a computer science student at the University of Michigan who believes the best
+                  things in life come from a little experimentation and chaos — whether that's making
+                  bagels at 3am or filming myself kicking a chair across the room to get an animation just right.
+                </p> */}
+                <p className="mt-3">
+                  By day, I write code — I've interned at NetEase and Tencent, built distributed
+                  systems, and trained ML models. I've developed my own game last semester--which you 
+                  can try with the link above--and am currently working to make my own 2d engine. 
+                  By night, I'm probably in the kitchen inventing something my friends are both 
+                  excited and slightly afraid to try.
                 </p>
                 <p className="mt-3">
-                  I’m currently focusing more on{" "}
-                  <span className="text-white font-medium">game engine / gameplay development</span>{" "}
-                  while bringing along strong web + tooling instincts.
+                  When I'm not debugging or cooking, you can find me dancing with K-Motion (UMich's
+                  K-pop dance crew 🪩), making posters and running socials as CSA's publicity chair,
+                  or doodling future tattoo flash sheets in the margins of my notes. Tattooing is my
+                  ultimate side quest — one day I'll poke some ink for real.
+                </p>
+                <p className="mt-3">
+                  I love making things that feel alive: games with worlds you want to wander through,
+                  food that surprises you, art that sticks with you (literally, if it's a tattoo). I
+                  care about craft, play, and the little details that make someone go "oh, that's
+                  cool".
                 </p>
               </div>
             </div>
 
             <div className="md:col-span-5">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <div className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6">
                 <div className="text-sm font-semibold text-zinc-50">Core strengths</div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Tag>Evaluation-minded engineering</Tag>
@@ -430,7 +545,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
             {skills.map((s) => (
               <div
                 key={s.group}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6"
+                className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6"
               >
                 <div className="text-sm font-semibold text-zinc-50">{s.group}</div>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -450,7 +565,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
         <Section id="work" eyebrow="Signals" title="Experience highlights">
           <div className="grid gap-4 md:grid-cols-3">
             {experience.map((x) => (
-              <div key={x.title} className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <div key={x.title} className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6">
                 <div className="text-sm font-semibold text-zinc-50">{x.title}</div>
                 <ul className="mt-3 grid gap-2 list-disc pl-5 text-sm text-zinc-200">
                   {x.bullets.map((b) => (
@@ -462,12 +577,53 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
           </div>
         </Section>
 
+        <Section id="demo" eyebrow="Featured demo" title="Game Engines — custom feature">
+          <div className="grid gap-6 md:grid-cols-12">
+            <div className="md:col-span-8">
+              <div
+                className="relative w-full overflow-hidden rounded-3xl border border-sky-300/25 bg-slate-950/90"
+                style={{ paddingTop: "56.25%" }}
+              >
+                <iframe
+                  className="absolute inset-0 h-full w-full"
+                  src="https://www.youtube.com/embed/9QY-SHEKz_U"
+                  title="Custom feature demo — 2D game engine"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <div className="md:col-span-4">
+              <div className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6 text-sm leading-relaxed text-zinc-200">
+                <p>
+                  Final custom feature for my Game Engines course. Our class built the same 2D
+                  engine across the semester; for the final project, each student designed and
+                  implemented one feature on top of it.
+                </p>
+                <p className="mt-3">
+                  This clip demos my feature running on the shared engine.
+                </p>
+                <div className="mt-4">
+                  <ButtonLink
+                    href="https://youtu.be/9QY-SHEKz_U"
+                    variant="soft"
+                    icon="link"
+                  >
+                    Open on YouTube
+                  </ButtonLink>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Section>
+
         <Section id="portfolios" eyebrow="Easy access" title="Resume, game, and 3D models">
           <div className="grid gap-4 md:grid-cols-3">
             {portfolios.map((c) => (
               <div
                 key={c.title}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6 flex flex-col"
+                className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6 flex flex-col"
               >
                 <div className="text-sm font-semibold text-zinc-50">{c.title}</div>
                 <p className="mt-2 text-sm text-zinc-200 leading-relaxed">{c.desc}</p>
@@ -483,19 +639,19 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
 
         <Section id="contact" eyebrow="Let’s talk" title="Contact">
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6">
               <div className="text-sm font-semibold text-zinc-50">Email</div>
               <a className="mt-2 inline-block text-sm text-zinc-200 underline underline-offset-4 hover:text-white" href={profile.links.email}>
                 {profile.links.email.replace("mailto:", "")}
               </a>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6">
               <div className="text-sm font-semibold text-zinc-50">LinkedIn</div>
               <a className="mt-2 inline-block text-sm text-zinc-200 underline underline-offset-4 hover:text-white" href={profile.links.linkedin} target="_blank" rel="noreferrer">
                 /in/meiyy
               </a>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-3xl border border-sky-300/25 bg-slate-950/90 p-6">
               <div className="text-sm font-semibold text-zinc-50">GitHub</div>
               <a className="mt-2 inline-block text-sm text-zinc-200 underline underline-offset-4 hover:text-white" href={profile.links.github} target="_blank" rel="noreferrer">
                 github.com/mayozoz
@@ -505,7 +661,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
         </Section>
       </main>
 
-      <footer className="border-t border-white/10 py-10">
+      <footer className="border-t border-sky-300/20 py-10">
         <div className="mx-auto w-full max-w-6xl px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-zinc-400">
           <div>
             © {new Date().getFullYear()} {profile.name}. Built with React + Tailwind.
@@ -526,6 +682,7 @@ export default function RecruiterPortfolio({ resumeUrl = DEFAULT_RESUME_URL }) {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
